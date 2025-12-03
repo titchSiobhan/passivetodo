@@ -1,7 +1,10 @@
-let dailyTasks = ['daily1', 'daily2'];
-let weeklyTasks = ['weekly'];
-let monthlyTasks = ['monthly'];
+let dailyTasks = ['banana'];
+let weeklyTasks = [];
+let monthlyTasks = [];
 
+let totalTasks = 0;
+let completedTasks = 0;
+let deletedTasks = 0;
 
 function findRightArray() {
     console.log('findRightArray called');
@@ -13,6 +16,7 @@ function findRightArray() {
         e.preventDefault();
         const taskChoice = document.querySelector('input[name="task-choice"]:checked');
         const newTask = taskInput.value.trim();
+       
 
           if (!taskChoice) {
             console.log('No task choice selected');
@@ -26,19 +30,25 @@ function findRightArray() {
 
           if (taskChoice.value === 'daily-task-choice') {
             console.log('daily task choice selected');
-            dailyTasks.push(taskInput.value);
+            dailyTasks.push(newTask);
+             totalTasks++;
           } else if (taskChoice.value === 'weekly-task-choice') {
             console.log('weekly task choice selected');
-            weeklyTasks.push(taskInput.value);
+            weeklyTasks.push(newTask);
+             totalTasks++;
           } else if (taskChoice.value === 'monthly-task-choice') {
             console.log('monthly task choice selected');
-            monthlyTasks.push(taskInput.value);
+            monthlyTasks.push(newTask);
+            totalTasks++;
           }
           taskInput.value = '';
+         
             saveTasks();     // persist changes
             updateTasks();   // refresh DOM
 
     })
+    
+
 
 }
 window.addEventListener('DOMContentLoaded', findRightArray);
@@ -173,7 +183,7 @@ arrowLeftMonthly.addEventListener('click', () => {
     weeklyPage.style.display = 'grid';
     
 })
-function renderList(Array, container, title) {
+function renderList(Array, container) {
 
  const taskList = container.querySelector('.taskList');
   
@@ -191,7 +201,17 @@ function renderList(Array, container, title) {
     const checkbox = document.createElement('input');
 
     checkbox.setAttribute('type', 'checkbox');
-    taskContainer.appendChild(checkbox);
+    
+    checkbox.setAttribute('class', 'checkbox');
+   
+taskContainer.appendChild(checkbox);
+checkbox.addEventListener('change', () => {
+  if (checkbox.checked) {
+    completedTasks++;   // only ever goes up
+    saveTasks();
+    updateCompletedDisplay();
+  }
+});
 
     const label = document.createElement('label');
     label.textContent = task;
@@ -201,6 +221,9 @@ function renderList(Array, container, title) {
     deleteBtn.setAttribute('class', 'deleteBtn');
     deleteBtn.textContent = 'X';
     deleteBtn.addEventListener('click', () => {
+        if (!checkbox.checked) {
+          deletedTasks++;
+        }
         console.log('delete button clicked');
         Array.splice(index, 1);
         saveTasks();
@@ -215,6 +238,37 @@ function renderList(Array, container, title) {
 }
 
 
+function updateCompletedDisplay() {
+  const completedPostIt = document.querySelector('.post-complete');
+
+let displayCompleted = document.querySelector('.completedDisplay');
+if (!displayCompleted) {
+  displayCompleted = document.createElement('div');
+  displayCompleted.setAttribute('class', 'completedDisplay')
+completedPostIt.appendChild(displayCompleted); 
+
+}
+displayCompleted.textContent = `${completedTasks} / ${totalTasks}`;
+console.log(`${completedTasks} / ${totalTasks}`);
+
+}
+
+function updateFailedDisplay() {
+  const failedPostIt = document.querySelector('.post-fail');
+
+let displayFailed = document.querySelector('.failedDisplay');
+if (!displayFailed) {
+  displayFailed = document.createElement('div');
+  displayFailed.setAttribute('class', 'failedDisplay')
+failedPostIt.appendChild(displayFailed); 
+
+}
+displayFailed.textContent = `${deletedTasks} / ${totalTasks}`;
+console.log(`${deletedTasks} / ${totalTasks}`);
+
+}
+
+
 
 function updateTasks() {
   console.log('update tasks called');
@@ -222,6 +276,8 @@ function updateTasks() {
   renderList(dailyTasks, dailyPage);
   renderList(weeklyTasks, weeklyPage);
   renderList(monthlyTasks, monthlyPage);
+  updateCompletedDisplay();
+  updateFailedDisplay();
 }
 
 //update tasks
@@ -235,18 +291,22 @@ function saveTasks() {
   const allTasks = {
     daily: dailyTasks,
     weekly: weeklyTasks,
-    monthly: monthlyTasks
+    monthly: monthlyTasks,
+    totalTasks: totalTasks,
+    completedTasks: completedTasks,
+    deletedTasks: deletedTasks,
   };
   localStorage.setItem('tasks', JSON.stringify(allTasks));
 }
 
 const savedTasks = JSON.parse(localStorage.getItem('tasks'));
 if (savedTasks) {
-  dailyTasks = savedTasks.daily;
-  weeklyTasks = savedTasks.weekly;
-  monthlyTasks = savedTasks.monthly;
+  dailyTasks = savedTasks.daily || [];
+  weeklyTasks = savedTasks.weekly || [];
+  monthlyTasks = savedTasks.monthly || [];
+  totalTasks = savedTasks.totalTasks || 0;
+  completedTasks = savedTasks.completedTasks || 0;
+  deletedTasks = savedTasks.deletedTasks || 0;
+
   updateTasks(); // show saved tasks immediately
 }
-
-const completedPostIt = document.querySelector('.post-complete');
-const failedPostIt = document.querySelector('.post-fail');
