@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>To do List</title>
+</head>
+<body>
+    <main>
+        <div class="list-area">
+            <div class="dailyPage">
+                
+                <!-- Arrows stay separate -->
+                <div class="arrowContainer arrowContaine-dailyr"></div>
+                <div class="arrow arrow-right right-daily">></div>  
+
+                <!-- Task list goes here -->
+                <div class="taskList dailyTasks"></div>
+             
+        </div>
+
+        <div class="weeklyPage">
+       
+            <!-- Arrows stay separate -->
+                <div class="arrowContainer arrowContainer-weekly"></div>
+                    <div class="arrow arrow-left left-weekly"><</div>
+                    <div class="arrow arrow-right right-weekly">></div>   
+                      <!-- Task list goes here -->
+            <div class="taskList weeklyTasks"></div>
+            
+                
+            </div>
+
+            <div class="monthlyPage">
+                <!-- Arrows stay separate -->
+                <div class="arrowContainer arrowContainer-monthly"></div>
+                    <div class="arrow arrow-left left-monthly"><</div> 
+                    <!-- Task list goes here -->
+                <div class="taskList monthlyTasks"></div>
+                
+            </div>
+        </div>
+        <div class="add-todo">
+            <form action="" class="addTask" id="addTask">
+                <label for="task-input">Task</label>
+                <input type="text" name="task-input" id="task-input">
+                <label for="daily-task-choice">Daily</label>
+                <input type="radio" name="task-choice" id="daily-task-choice" value="daily-task-choice">
+                <label for="weekly-task-choice">Weekly</label>
+                <input type="radio" name="task-choice" id="weekly-task-choice" value="weekly-task-choice">
+                <label for="monthly-task-choice">Monthly</label>
+                <input type="radio" name="task-choice" id="monthly-task-choice" value="monthly-task-choice">
+                <input type="submit" value="submit" class="submit">
+            </form>
+        </div>
+        <div class="post-it-side">
+            <div class="post-complete">
+                <h3>Completed</h3>
+            </div>
+            <div class="post-fail">
+                <h3>Failed</h3>
+            </div>
+        </div>
+    </main>
+    <script src="main.js" defer></script>
+</body>
+</html>
