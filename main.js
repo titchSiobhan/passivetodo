@@ -9,10 +9,19 @@ let totalTasks = 0;
 let completedTasks = 0;
 let deletedTasks = 0;
 
-const popup = document.createElement('div');
-popup.setAttribute('class', 'popup');
+
+
 
 const addToDo = document.querySelector('.add-todo');
+function popupBox(e) {
+
+const popup = document.querySelector('.popup');
+popup.style.position = 'absolute'
+popup.style.left = e.clientX +'px';
+popup.style.top = e.clientY + 'px';
+popup.style.display = 'flex';
+return popup;
+}
 
 //array factory
 
@@ -37,12 +46,6 @@ function findRightArray() {
         const taskChoice = document.querySelector('input[name="task-choice"]:checked');
         const newTask = taskInput.value.trim();
         
-       addToDo.appendChild(popup);
-        popup.textContent = getInsult('add')
-      setTimeout(() => {
-        addToDo.removeChild(popup);
-        
-      }, 2000);
 
           if (!taskChoice) {
             console.log('No task choice selected');
@@ -53,6 +56,8 @@ function findRightArray() {
     console.log('Empty task, not adding');
     return; // stop here if input is blank
   }
+
+
 
           if (taskChoice.value === 'daily-task-choice') {
             console.log('daily task choice selected');
@@ -77,6 +82,15 @@ function findRightArray() {
 
     })
     
+  todoForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const popup = popupBox(e);
+  popup.textContent = getInsult('add');
+  setTimeout(() => {
+    popup.style.display = 'none'; // hide after 2s
+  }, 2000);
+
+})
 
 
 }
@@ -110,12 +124,7 @@ monthlyPage.style.display = 'none';
   dailyArrowContainer.setAttribute('class', 'arrowContainer arrowContainer-daily');
 
   const arrowRight = document.querySelector('.right-daily');
-  
-  arrowRight.addEventListener('click', () => {
-    console.log('daily to weekly');
-    dailyPage.style.display = 'none';
-    weeklyPage.style.display = 'grid';
-  });
+
 
   dailyArrowContainer.appendChild(arrowRight);
   dailyPage.appendChild(dailyHeading);
@@ -133,19 +142,10 @@ dailyPage.appendChild(dailyTaskList);
 
   const arrowLeftWeekly = document.querySelector('.left-weekly');
   
-  arrowLeftWeekly.addEventListener('click', () => {
-    console.log('weekly to daily');
-    weeklyPage.style.display = 'none';
-    dailyPage.style.display = 'grid';
-  });
-
+ 
   const arrowRightWeekly = document.querySelector('.right-weekly');
  
-  arrowRightWeekly.addEventListener('click', () => {
-    console.log('weekly to monthly');
-    weeklyPage.style.display = 'none';
-    monthlyPage.style.display = 'grid';
-  });
+
   weeklyArrowContainer.appendChild(arrowLeftWeekly);
   weeklyArrowContainer.appendChild(arrowRightWeekly);
   weeklyPage.appendChild(weeklyHeading);
@@ -163,11 +163,7 @@ dailyPage.appendChild(dailyTaskList);
 
   const arrowLeftMonthly = document.querySelector('.left-monthly');
 
-  arrowLeftMonthly.addEventListener('click', () => {
-    console.log('monthly to weekly');
-    monthlyPage.style.display = 'none';
-    weeklyPage.style.display = 'grid';
-  });
+ 
 
   monthlyArrowContainer.appendChild(arrowLeftMonthly);
   monthlyPage.appendChild(monthlyHeading);
@@ -225,36 +221,47 @@ checkbox.addEventListener('change', () => {
     task.completed = true;
     completedTasks++;   // only ever goes up
     
-     taskList.appendChild(popup);
-        popup.textContent = getInsult('complete')
+  }
+      
+});
+  
+checkbox.addEventListener('change', (e) => {  
+  const popup = popupBox(e)
+popup.textContent = getInsult('complete')
       setTimeout(() => {
-        taskList.removeChild(popup);
+        popup.style.display = 'none';
         
       }, 2000);
     saveTasks();
     updateCompletedDisplay();
-  }
-});
+  
+})
+
+
 taskContainer.appendChild(checkbox);
     const label = document.createElement('label');
     label.textContent = task.text;
     taskContainer.appendChild(label);
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.setAttribute('class', 'deleteBtn');
+    deleteBtn.setAttribute('class', 'deleteBtn btn');
     deleteBtn.textContent = 'X';
     //insult 
-    deleteBtn.addEventListener('mouseover', () => {
+    deleteBtn.addEventListener('mouseover', (e) => {
        if (!checkbox.checked && !task.completed) {
    
-     taskList.appendChild(popup);
+      const popup = popupBox(e);
         popup.textContent = getInsult('deleted')
       setTimeout(() => {
-        taskList.removeChild(popup);
+       
+         popup.style.display = 'none';
         
       }, 2000);
-    }
-    }) 
+    } 
+  })
+  
+    
+  
     deleteBtn.addEventListener('click', () => {
         if (!task.completed) {
           deletedTasks++;
@@ -330,6 +337,7 @@ function saveTasks() {
     totalTasks: totalTasks,
     completedTasks: completedTasks,
     deletedTasks: deletedTasks,
+    savedAt: Date.now()
   };
   localStorage.setItem('tasks', JSON.stringify(allTasks));
 }
@@ -339,7 +347,7 @@ if (savedTasks) {
 
 const savedDate = new Date(savedTasks.savedAt);
 const now = new Date();
-const currentDay = now.getDay();
+
 
 //daily reset
 if ( savedDate.getDate() != now.getDate() || savedDate.getMonth() != now.getMonth() || savedDate.getFullYear() != now.getFullYear() ) {
@@ -350,7 +358,13 @@ if ( savedDate.getDate() != now.getDate() || savedDate.getMonth() != now.getMont
 
 }
 //weekly reset
- if (currentDay === 1) {
+
+const getWeek = (d) => {
+    const oneJan = new Date(d.getFullYear(), 0, 1);
+    return Math.floor(((d - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
+  };
+
+ if (getWeek(savedDate) != getWeek(now)) {
     savedTasks.weekly = []; // wipe weekly tasks
     savedTasks.savedAt = Date.now();
     localStorage.setItem('tasks', JSON.stringify(savedTasks));
@@ -381,22 +395,24 @@ if ( savedDate.getDate() != now.getDate() || savedDate.getMonth() != now.getMont
 const completedCounter = document.querySelector('.post-complete');
 const failedCounter = document.querySelector('.post-fail');
 
-completedCounter.addEventListener('mouseover', () => {
+completedCounter.addEventListener('mouseover', (e) => {
 
-   completedCounter.appendChild(popup);
+        const popup = popupBox(e);
         popup.textContent = getInsult('completeList')
       setTimeout(() => {
-        completedCounter.removeChild(popup);
+         popup.style.display = 'none';
         
       }, 2000);
-})
+    })
 
-failedCounter.addEventListener('mouseover', () => {
 
-   failedCounter.appendChild(popup);
+failedCounter.addEventListener('mouseover', (e) => {
+  const popup = popupBox(e)
+   
         popup.textContent = getInsult('failedList')
       setTimeout(() => {
-        failedCounter.removeChild(popup);
+        popup.style.display = 'none'
         
       }, 2000);
-})
+
+    })
