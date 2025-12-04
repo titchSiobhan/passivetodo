@@ -89,7 +89,7 @@ main {
 }
 
 .dailyPage, .weeklyPage, .monthlyPage {
-    background-image: url('/images/notepad.png');
+    background-image: url('images/notepad.png');
     background-size: contain;
     background-repeat: no-repeat;
     margin: 20px;
@@ -212,7 +212,7 @@ main {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         grid-template-rows: repeat(6, minmax(0, 1fr));
-        background-image: url('/images/notepad-long.png');
+        background-image: url('images/notepad-long.png');
 
     }
 
