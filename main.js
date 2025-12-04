@@ -1,3 +1,6 @@
+import { getInsult } from "./insult.js";
+
+
 let dailyTasks = [];
 let weeklyTasks = [];
 let monthlyTasks = [];
@@ -6,7 +9,10 @@ let totalTasks = 0;
 let completedTasks = 0;
 let deletedTasks = 0;
 
+const popup = document.createElement('div');
+popup.setAttribute('class', 'popup');
 
+const addToDo = document.querySelector('.add-todo');
 
 //array factory
 
@@ -30,7 +36,13 @@ function findRightArray() {
         e.preventDefault();
         const taskChoice = document.querySelector('input[name="task-choice"]:checked');
         const newTask = taskInput.value.trim();
-       
+        
+       addToDo.appendChild(popup);
+        popup.textContent = getInsult('add')
+      setTimeout(() => {
+        addToDo.removeChild(popup);
+        
+      }, 2000);
 
           if (!taskChoice) {
             console.log('No task choice selected');
@@ -198,9 +210,6 @@ function renderList(Array, container) {
     taskList.removeChild(taskList.firstChild);
   }
 
-
-
-
   Array.forEach((task, index) => {
     const taskContainer = document.createElement('div');
     taskContainer.setAttribute('class', 'taskContainer');
@@ -215,6 +224,13 @@ checkbox.addEventListener('change', () => {
   if (checkbox.checked && !task.completed) {
     task.completed = true;
     completedTasks++;   // only ever goes up
+    
+     taskList.appendChild(popup);
+        popup.textContent = getInsult('complete')
+      setTimeout(() => {
+        taskList.removeChild(popup);
+        
+      }, 2000);
     saveTasks();
     updateCompletedDisplay();
   }
@@ -227,6 +243,18 @@ taskContainer.appendChild(checkbox);
     const deleteBtn = document.createElement('button');
     deleteBtn.setAttribute('class', 'deleteBtn');
     deleteBtn.textContent = 'X';
+    //insult 
+    deleteBtn.addEventListener('mouseover', () => {
+       if (!checkbox.checked && !task.completed) {
+   
+     taskList.appendChild(popup);
+        popup.textContent = getInsult('deleted')
+      setTimeout(() => {
+        taskList.removeChild(popup);
+        
+      }, 2000);
+    }
+    }) 
     deleteBtn.addEventListener('click', () => {
         if (!task.completed) {
           deletedTasks++;
@@ -346,3 +374,29 @@ if ( savedDate.getDate() != now.getDate() || savedDate.getMonth() != now.getMont
 
   updateTasks(); // show saved tasks immediately
 }
+
+
+//get insults
+
+const completedCounter = document.querySelector('.post-complete');
+const failedCounter = document.querySelector('.post-fail');
+
+completedCounter.addEventListener('mouseover', () => {
+
+   completedCounter.appendChild(popup);
+        popup.textContent = getInsult('completeList')
+      setTimeout(() => {
+        completedCounter.removeChild(popup);
+        
+      }, 2000);
+})
+
+failedCounter.addEventListener('mouseover', () => {
+
+   failedCounter.appendChild(popup);
+        popup.textContent = getInsult('failedList')
+      setTimeout(() => {
+        failedCounter.removeChild(popup);
+        
+      }, 2000);
+})
