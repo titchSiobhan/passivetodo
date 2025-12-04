@@ -1,10 +1,24 @@
-let dailyTasks = ['banana'];
+let dailyTasks = [];
 let weeklyTasks = [];
 let monthlyTasks = [];
 
 let totalTasks = 0;
 let completedTasks = 0;
 let deletedTasks = 0;
+
+
+
+//array factory
+
+class Task {
+  constructor(text, category) {
+    this.id = Date.now();
+    this.text = text;
+    this.createdAt = Date.now();
+    this.category = category;
+    this.completed = false;
+  }
+}
 
 function findRightArray() {
     console.log('findRightArray called');
@@ -30,15 +44,18 @@ function findRightArray() {
 
           if (taskChoice.value === 'daily-task-choice') {
             console.log('daily task choice selected');
-            dailyTasks.push(newTask);
+            const task = new Task(newTask, 'daily')
+            dailyTasks.push(task);
              totalTasks++;
           } else if (taskChoice.value === 'weekly-task-choice') {
             console.log('weekly task choice selected');
-            weeklyTasks.push(newTask);
+            const task = new Task(newTask, 'weekly')
+            weeklyTasks.push(task);
              totalTasks++;
           } else if (taskChoice.value === 'monthly-task-choice') {
             console.log('monthly task choice selected');
-            monthlyTasks.push(newTask);
+            const task = new Task(newTask, 'monthly')
+            monthlyTasks.push(task);
             totalTasks++;
           }
           taskInput.value = '';
@@ -61,19 +78,6 @@ const listArea = document.querySelector('.list-area');
 const dailyPage = document.querySelector('.dailyPage');
 const weeklyPage = document.querySelector('.weeklyPage');
 const monthlyPage = document.querySelector('.monthlyPage');
-
-
-
-// const arrowLeft = document.querySelector('.arrow-left');
-// const arrowRight = document.querySelector('.arrow-right');
-
-
-//add pages to page
-
-
-// listArea.appendChild(dailyPage);
-// listArea.appendChild(weeklyPage);
-// listArea.appendChild(monthlyPage);
 
 
 // hide and show pages when arrows clicked
@@ -183,6 +187,8 @@ arrowLeftMonthly.addEventListener('click', () => {
     weeklyPage.style.display = 'grid';
     
 })
+
+//render list
 function renderList(Array, container) {
 
  const taskList = container.querySelector('.taskList');
@@ -203,25 +209,26 @@ function renderList(Array, container) {
     checkbox.setAttribute('type', 'checkbox');
     
     checkbox.setAttribute('class', 'checkbox');
+    checkbox.checked = task.completed;
    
-taskContainer.appendChild(checkbox);
 checkbox.addEventListener('change', () => {
-  if (checkbox.checked) {
+  if (checkbox.checked && !task.completed) {
+    task.completed = true;
     completedTasks++;   // only ever goes up
     saveTasks();
     updateCompletedDisplay();
   }
 });
-
+taskContainer.appendChild(checkbox);
     const label = document.createElement('label');
-    label.textContent = task;
+    label.textContent = task.text;
     taskContainer.appendChild(label);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.setAttribute('class', 'deleteBtn');
     deleteBtn.textContent = 'X';
     deleteBtn.addEventListener('click', () => {
-        if (!checkbox.checked) {
+        if (!task.completed) {
           deletedTasks++;
         }
         console.log('delete button clicked');
@@ -301,6 +308,35 @@ function saveTasks() {
 
 const savedTasks = JSON.parse(localStorage.getItem('tasks'));
 if (savedTasks) {
+
+const savedDate = new Date(savedTasks.savedAt);
+const now = new Date();
+const currentDay = now.getDay();
+
+//daily reset
+if ( savedDate.getDate() != now.getDate() || savedDate.getMonth() != now.getMonth() || savedDate.getFullYear() != now.getFullYear() ) {
+  savedTasks.daily = [];
+  savedTasks.savedAt = Date.now();
+  localStorage.setItem('tasks', JSON.stringify(savedTasks));
+    console.log("Daily tasks cleared at start of new day");
+
+}
+//weekly reset
+ if (currentDay === 1) {
+    savedTasks.weekly = []; // wipe weekly tasks
+    savedTasks.savedAt = Date.now();
+    localStorage.setItem('tasks', JSON.stringify(savedTasks));
+    console.log("Weekly tasks cleared on Monday");
+  }
+
+
+ if (savedDate.getMonth() !== now.getMonth() || savedDate.getFullYear() !== now.getFullYear()) {
+  savedTasks.monthly = [];
+  savedTasks.savedAt = Date.now();
+    localStorage.setItem('tasks', JSON.stringify(savedTasks)); // wipe old tasks
+    console.log("Tasks cleared at start of new month");
+  }
+
   dailyTasks = savedTasks.daily || [];
   weeklyTasks = savedTasks.weekly || [];
   monthlyTasks = savedTasks.monthly || [];
